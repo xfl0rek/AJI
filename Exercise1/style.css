@@ -1,0 +1,126 @@
+body {
+    background-color: deepskyblue;
+    margin: 0;
+}
+
+.sun {
+    position: absolute;
+    top:5%;
+    left:5%;
+    width:8%;
+    height: 16%;
+    border-radius:50%;
+    background:#ffff66;
+
+}
+
+.road {
+    position: absolute;
+    top:55%;
+    height:45%;
+    width:100%;
+    background-color: grey;
+}
+
+.road .line {
+    position: absolute;
+    top:50%;
+    height:2.5%;
+    width:100%;
+    background-color: yellow;
+}
+
+.road .car1 {
+    position: absolute;
+    top:-30%;
+    left:32%;
+    height:25%;
+    width: 20%;
+    border-top-left-radius: 80%;
+    border-top-right-radius: 20%;
+    background-color: red;
+}
+
+.road .car2 {
+    position: absolute;
+    top:-5%;
+    left:27%;
+    height:30%;
+    width:30%;
+    background-color: red;
+}
+
+.road .car2 .wheels {
+    position: absolute;
+    bottom: -30%;
+    left: 13%;
+    width: 80%;
+    height: 70%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.road .car2 .wheel {
+    position: relative;
+    width: 20%;
+    height: 100%;
+    background-color: black;
+    border-radius: 50%;
+}
+
+.road .car2 .rim {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    height: 60%;
+    background-color: dimgrey;
+    border-radius: 50%;
+}
+
+.road .car1 .window1 {
+    position: absolute;
+    top:18%;
+    left:3%;
+    height:80%;
+    width: 50%;
+    background-color: cornflowerblue;
+    border-top-left-radius: 88%;
+}
+
+.road .car1 .window2 {
+    position: absolute;
+    top:18%;
+    left:60%;
+    height:80%;
+    width: 35%;
+    background-color: cornflowerblue;
+}
+
+.road .car2 .handle {
+    position: absolute;
+    top:18%;
+    left:42%;
+    height:8%;
+    width: 8%;
+    background-color: black;
+}
+
+.road .car2 .front-lights {
+    position: absolute;
+    top:10%;
+    left:0;
+    height:20%;
+    width: 5%;
+    background-color: lightgoldenrodyellow;
+}
+
+.road .car2 .back-lights {
+    position: absolute;
+    top:10%;
+    left:95%;
+    height:20%;
+    width: 5%;
+    background-color: lightgoldenrodyellow;
+}
