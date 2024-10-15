@@ -34,12 +34,26 @@ let updateTodoList = function() {
         let newElement = document.createElement("div");
         let newContent = document.createTextNode(
             todoList[todo].title + " " + todoList[todo].description);
+
+        let newDeleteButton = document.createElement("input");
+        newDeleteButton.type = "button";
+        newDeleteButton.value = "x";
+        newDeleteButton.addEventListener("click",
+            function() {
+                deleteTodo(todo);
+            });
+
         newElement.appendChild(newContent);
         todoListDiv.appendChild(newElement);
+        newElement.appendChild(newDeleteButton);
     }
 }
 
 setInterval(updateTodoList, 1000);
+
+let deleteTodo = function(index) {
+    todoList.splice(index,1);
+}
 
 let addTodo = function() {
     let inputTitle = document.getElementById("inputTitle");
