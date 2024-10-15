@@ -40,3 +40,22 @@ let updateTodoList = function() {
 }
 
 setInterval(updateTodoList, 1000);
+
+let addTodo = function() {
+    let inputTitle = document.getElementById("inputTitle");
+    let inputDescription = document.getElementById("inputDescription");
+    let inputPlace = document.getElementById("inputPlace");
+    let inputDate = document.getElementById("inputDate");
+    let newTitle = inputTitle.value;
+    let newDescription = inputDescription.value;
+    let newPlace = inputPlace.value;
+    let newDate = new Date(inputDate.value);
+    let newTodo = {
+        title: newTitle,
+        description: newDescription,
+        place: newPlace,
+        category: '',
+        dueDate: newDate
+    };
+    todoList.push(newTodo);
+}
