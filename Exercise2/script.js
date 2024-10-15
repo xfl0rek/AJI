@@ -25,7 +25,19 @@ let initList = function() {
     );
 }
 
-initList();
+let req = new XMLHttpRequest();
+
+req.onreadystatechange = () => {
+    if (req.readyState == XMLHttpRequest.DONE) {
+        todoList = JSON.parse(req.responseText).record;
+    }
+};
+
+req.open("GET", "https://api.jsonbin.io/v3/b/670e8e51ad19ca34f8b8fcf1/latest", true);
+req.setRequestHeader("X-Master-Key", "$2a$10$HWwe59drZdjTP0eVeMJF1eFkJcfj4uDzHg7xVcVl34ptEHVxpVTT.");
+req.send();
+
+//initList();
 
 let updateTodoList = function() {
     let todoListDiv =
@@ -65,6 +77,7 @@ setInterval(updateTodoList, 1000);
 
 let deleteTodo = function(index) {
     todoList.splice(index,1);
+    updateJSONbin();
 }
 
 let addTodo = function() {
@@ -86,4 +99,21 @@ let addTodo = function() {
     todoList.push(newTodo);
 
     window.localStorage.setItem("todos", JSON.stringify(todoList));
+
+    updateJSONbin();
+}
+
+let updateJSONbin = function() {
+    let req = new XMLHttpRequest();
+
+    req.onreadystatechange = () => {
+        if (req.readyState == XMLHttpRequest.DONE) {
+            console.log(req.responseText);
+        }
+    };
+
+    req.open("PUT", "https://api.jsonbin.io/v3/b/670e8e51ad19ca34f8b8fcf1", true);
+    req.setRequestHeader("Content-Type", "application/json");
+    req.setRequestHeader("X-Master-Key", "$2a$10$HWwe59drZdjTP0eVeMJF1eFkJcfj4uDzHg7xVcVl34ptEHVxpVTT.");
+    req.send(JSON.stringify(todoList));
 }
