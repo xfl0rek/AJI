@@ -2,6 +2,11 @@
 let todoList = [];
 
 let initList = function() {
+    let savedList = window.localStorage.getItem("todos");
+    if (savedList != null)
+        todoList = JSON.parse(savedList);
+    else
+
     todoList.push(
         {
             title: "Learn JS",
@@ -72,4 +77,6 @@ let addTodo = function() {
         dueDate: newDate
     };
     todoList.push(newTodo);
+
+    window.localStorage.setItem("todos", JSON.stringify(todoList));
 }
