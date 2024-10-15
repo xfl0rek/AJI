@@ -41,22 +41,31 @@ req.send();
 
 let updateTodoList = function() {
     let todoListDiv =
-        document.getElementById("todoListView");
+        document.getElementById("todoListView").getElementsByTagName("tbody")[0];
 
     while (todoListDiv.firstChild) {
         todoListDiv.removeChild(todoListDiv.firstChild);
     }
 
     let filterInput = document.getElementById("inputSearch");
-    for (let todo in todoList) {
+    for (let todo of todoList) {
         if (
             (filterInput.value == "") ||
-            (todoList[todo].title.includes(filterInput.value)) ||
-            (todoList[todo].description.includes(filterInput.value))
+            (todo.title.includes(filterInput.value)) ||
+            (todo.description.includes(filterInput.value))
         ) {
-            let newElement = document.createElement("p");
-            let newContent = document.createTextNode(todoList[todo].title + " " +
-                todoList[todo].description);
+            let newRow = todoListDiv.insertRow();
+
+            let titleCell = newRow.insertCell(0);
+            let descriptionCell = newRow.insertCell(1);
+            let placeCell = newRow.insertCell(2);
+            let dueDateCell = newRow.insertCell(3);
+            let actionCell = newRow.insertCell(4);
+
+            titleCell.textContent = todo.title;
+            descriptionCell.textContent = todo.description;
+            placeCell.textContent = todo.place;
+            dueDateCell.textContent = new Date(todo.dueDate).toLocaleDateString();
 
             let newDeleteButton = document.createElement("input");
             newDeleteButton.type = "button";
@@ -66,9 +75,7 @@ let updateTodoList = function() {
                     deleteTodo(todo);
                 });
 
-            newElement.appendChild(newContent);
-            todoListDiv.appendChild(newElement);
-            newElement.appendChild(newDeleteButton);
+            actionCell.appendChild(newDeleteButton);
         }
     }
 }
