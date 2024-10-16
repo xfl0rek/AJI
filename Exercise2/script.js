@@ -66,10 +66,12 @@ let updateTodoList = function() {
             descriptionCell.textContent = todo.description;
             placeCell.textContent = todo.place;
             dueDateCell.textContent = new Date(todo.dueDate).toLocaleDateString();
+            actionCell.className = "text-center";
 
             let newDeleteButton = document.createElement("input");
             newDeleteButton.type = "button";
             newDeleteButton.value = "x";
+            newDeleteButton.className = "btn btn-danger btn-sm";
             newDeleteButton.addEventListener("click",
                 function() {
                     deleteTodo(todo);
