@@ -40,8 +40,7 @@ req.send();
 //initList();
 
 let updateTodoList = function() {
-    let todoListDiv =
-        document.getElementById("todoListView").getElementsByTagName("tbody")[0];
+    let todoListDiv = document.getElementById("todoListView").getElementsByTagName("tbody")[0];
 
     while (todoListDiv.firstChild) {
         todoListDiv.removeChild(todoListDiv.firstChild);
@@ -49,39 +48,58 @@ let updateTodoList = function() {
 
     let filterInput = document.getElementById("inputSearch");
     let searchTerm = filterInput.value.toUpperCase();
-    todoList.forEach((todo, index) => {
-        if (
-            (searchTerm == "") ||
-            (todo.title.toUpperCase().includes(searchTerm)) ||
-            (todo.description.toUpperCase().includes(searchTerm))
-        ) {
-            let newRow = todoListDiv.insertRow();
 
-            let titleCell = newRow.insertCell(0);
-            let descriptionCell = newRow.insertCell(1);
-            let placeCell = newRow.insertCell(2);
-            let dueDateCell = newRow.insertCell(3);
-            let actionCell = newRow.insertCell(4);
+    let startDateInput = document.getElementById("startDate").value;
+    let endDateInput = document.getElementById("endDate").value;
 
-            titleCell.textContent = todo.title;
-            descriptionCell.textContent = todo.description;
-            placeCell.textContent = todo.place;
-            dueDateCell.textContent = new Date(todo.dueDate).toLocaleDateString();
-            actionCell.className = "text-center";
+    let startDate = startDateInput ? new Date(startDateInput) : null;
+    let endDate = endDateInput ? new Date(endDateInput) : null;
 
-            let newDeleteButton = document.createElement("input");
-            newDeleteButton.type = "button";
-            newDeleteButton.value = "x";
-            newDeleteButton.className = "btn btn-danger btn-sm";
-            newDeleteButton.addEventListener("click",
-                function() {
-                    deleteTodo(index);
-                });
+    let filteredTodos = todoList.filter((todo) => {
+        let todoDate = new Date(todo.dueDate);
 
-            actionCell.appendChild(newDeleteButton);
+        let isWithinDateRange = true;
+        if (startDate && todoDate < startDate) {
+            isWithinDateRange = false;
         }
+        if (endDate && todoDate > endDate) {
+            isWithinDateRange = false;
+        }
+
+        return (
+            isWithinDateRange && 
+            (searchTerm === "" || 
+            todo.title.toUpperCase().includes(searchTerm) || 
+            todo.description.toUpperCase().includes(searchTerm))
+        );
     });
-}
+
+    filteredTodos.forEach((todo, index) => {
+        let newRow = todoListDiv.insertRow();
+
+        let titleCell = newRow.insertCell(0);
+        let descriptionCell = newRow.insertCell(1);
+        let placeCell = newRow.insertCell(2);
+        let dueDateCell = newRow.insertCell(3);
+        let actionCell = newRow.insertCell(4);
+
+        titleCell.textContent = todo.title;
+        descriptionCell.textContent = todo.description;
+        placeCell.textContent = todo.place;
+        dueDateCell.textContent = new Date(todo.dueDate).toLocaleDateString();
+        actionCell.className = "text-center";
+
+        let newDeleteButton = document.createElement("input");
+        newDeleteButton.type = "button";
+        newDeleteButton.value = "x";
+        newDeleteButton.className = "btn btn-danger btn-sm";
+        newDeleteButton.addEventListener("click", function() {
+            deleteTodo(index);
+        });
+
+        actionCell.appendChild(newDeleteButton);
+    });
+};
 
 setInterval(updateTodoList, 1000);
 
