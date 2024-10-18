@@ -48,11 +48,12 @@ let updateTodoList = function() {
     }
 
     let filterInput = document.getElementById("inputSearch");
-    for (let todo of todoList) {
+    let searchTerm = filterInput.value.toUpperCase();
+    todoList.forEach((todo, index) => {
         if (
-            (filterInput.value == "") ||
-            (todo.title.includes(filterInput.value)) ||
-            (todo.description.includes(filterInput.value))
+            (searchTerm == "") ||
+            (todo.title.toUpperCase().includes(searchTerm)) ||
+            (todo.description.toUpperCase().includes(searchTerm))
         ) {
             let newRow = todoListDiv.insertRow();
 
@@ -74,12 +75,12 @@ let updateTodoList = function() {
             newDeleteButton.className = "btn btn-danger btn-sm";
             newDeleteButton.addEventListener("click",
                 function() {
-                    deleteTodo(todo);
+                    deleteTodo(index);
                 });
 
             actionCell.appendChild(newDeleteButton);
         }
-    }
+    });
 }
 
 setInterval(updateTodoList, 1000);
@@ -94,6 +95,12 @@ let addTodo = function() {
     let inputDescription = document.getElementById("inputDescription");
     let inputPlace = document.getElementById("inputPlace");
     let inputDate = document.getElementById("inputDate");
+
+    if (inputTitle.value === "" || inputDescription.value === "" || inputPlace.value === "" || inputDate.value === "") {
+        alert("Wszystkie pola muszą być wypełnione.");
+        return;
+    }
+
     let newTitle = inputTitle.value;
     let newDescription = inputDescription.value;
     let newPlace = inputPlace.value;
@@ -110,6 +117,11 @@ let addTodo = function() {
     window.localStorage.setItem("todos", JSON.stringify(todoList));
 
     updateJSONbin();
+
+    inputTitle.value = "";
+    inputDescription.value = "";
+    inputPlace.value = "";
+    inputDate.value = "";
 }
 
 let updateJSONbin = function() {
