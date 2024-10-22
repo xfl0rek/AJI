@@ -126,7 +126,7 @@ let addTodo = async function() {
     let newPlace = inputPlace.value;
     let newDate = new Date(inputDate.value);
 
-    let category = await fetchCategoryFromGroq(newTitle);
+    let category = await fetchCategoryFromGroq(newTitle, newDescription);
 
     let newTodo = {
         title: newTitle,
@@ -172,12 +172,12 @@ const groq = new Groq({
     apiKey: "xd"
 });
 
-export async function fetchCategoryFromGroq(todoTitle) {
+export async function fetchCategoryFromGroq(todoTitle, todoDescription) {
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         {
           role: "user",
-          content: `Jaką kategorię byś przypisał do zadania o tytule: "${todoTitle}"? Do wyboru masz prywatne lub uniwersytet - wybierz i napisz wprost Prywatne albo Uniwersytet`,
+          content: `Na podstawie tytułu zadania: '${todoTitle}' i opisu: '${todoDescription}', jaką kategorię byś przypisał? Wybierz między Prywatne a Uniwersytet i odpowiedz tylko jednym słowem: Prywatne albo Uniwersytet.`,
         },
       ],
       model: "llama3-8b-8192",
