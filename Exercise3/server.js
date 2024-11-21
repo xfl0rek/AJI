@@ -1,10 +1,10 @@
 const app = require('./app');
-const express = require('express')
-const connectToDatabase = require('./config/database')
 
-connectToDatabase();
+app.set('port', process.env.PORT || 8081);
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Serwer działa na porcie ${PORT}`);
+const server = app.listen(app.get('port'), () => {
+    console.log(`Product service is listening on
+    ${server.address().port}`);
 });
+
+//module.exports = app;
