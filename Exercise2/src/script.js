@@ -1,6 +1,18 @@
 "use strict"
 let todoList = [];
 
+const apiKey = "$2a$10$HWwe59drZdjTP0eVeMJF1eFkJcfj4uDzHg7xVcVl34ptEHVxpVTT.";
+const url1 = "https://api.jsonbin.io/v3/b/670e8e51ad19ca34f8b8fcf1/latest";
+const url2 = "https://api.jsonbin.io/v3/b/670e8e51ad19ca34f8b8fcf1";
+
+import Groq from "groq-sdk";
+
+const groq = new Groq({
+    dangerouslyAllowBrowser: true,
+    apiKey: "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"
+});
+
+
 let initList = function() {
     let savedList = window.localStorage.getItem("todos");
     if (savedList != null)
@@ -32,10 +44,13 @@ req.onreadystatechange = () => {
         todoList = JSON.parse(req.responseText).record;
     }
 };
-
-req.open("GET", "https://api.jsonbin.io/v3/b/670e8e51ad19ca34f8b8fcf1/latest", true);
-req.setRequestHeader("X-Master-Key", "$2a$10$HWwe59drZdjTP0eVeMJF1eFkJcfj4uDzHg7xVcVl34ptEHVxpVTT.");
-req.send();
+try {
+    req.open("GET", url1, true);
+    req.setRequestHeader("X-Master-Key", apiKey);
+    req.send();
+} catch (err) {
+    console.error(err);
+}
 
 //initList();
 
@@ -158,19 +173,15 @@ let updateJSONbin = function() {
             console.log(req.responseText);
         }
     };
-
-    req.open("PUT", "https://api.jsonbin.io/v3/b/670e8e51ad19ca34f8b8fcf1", true);
-    req.setRequestHeader("Content-Type", "application/json");
-    req.setRequestHeader("X-Master-Key", "$2a$10$HWwe59drZdjTP0eVeMJF1eFkJcfj4uDzHg7xVcVl34ptEHVxpVTT.");
-    req.send(JSON.stringify(todoList));
+    try {
+        req.open("PUT", url2, true);
+        req.setRequestHeader("Content-Type", "application/json");
+        req.setRequestHeader("X-Master-Key", apiKey);
+        req.send(JSON.stringify(todoList));
+    } catch (err) {
+        console.log(err);
+    }
 }
-
-import Groq from "groq-sdk";
-
-const groq = new Groq({
-    dangerouslyAllowBrowser: true,
-    apiKey: "xd"
-});
 
 export async function fetchCategoryFromGroq(todoTitle, todoDescription) {
     const chatCompletion = await groq.chat.completions.create({
