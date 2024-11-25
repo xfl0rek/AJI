@@ -5,6 +5,7 @@ const productRoutes = require('./routes/product');
 const categoryRoutes = require('./routes/categories');
 const orderStatusRoutes = require('./routes/order_status');
 const ordersRoutes = require('./routes/orders');
+const init = require('./routes/init');
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/statuses', orderStatusRoutes);
 app.use('/api/orders', ordersRoutes);
+app.use('/api', init);
 
 connectDB();
 
