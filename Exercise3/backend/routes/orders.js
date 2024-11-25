@@ -21,6 +21,22 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ message: 'Invalid input' });
     }
 
+    const phoneRegex = /^\d+$/;
+    if (!phoneRegex.test(phone)) {
+        return res.status(400).json({ message: 'Phone number must contain only digits.' });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ message: 'Invalid email format.' });
+    }
+
+    for (const item of items) {
+        if (item.quantity <= 0) {
+            return res.status(400).json({ message: 'Quantity must be greater than 0.' });
+        }
+    }
+
     try {
         const newOrder = new Order({
             status,

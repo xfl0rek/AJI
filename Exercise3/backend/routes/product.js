@@ -20,7 +20,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
     const { name, description, price, weight, category } = req.body;
 
-    if (!name || !description || price < 0 || weight < 0) {
+    if (!name || !description || price <= 0 || weight <= 0) {
         return res.status(400).json({ message: 'Invalid input' });
     }
 
