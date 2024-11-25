@@ -35,10 +35,17 @@
     "category": "67449e07e758a7de6111acee"
   },
   {
-    "name": "Desk Chair",
-    "description": "Ergonomic desk chair with adjustable height and lumbar support.",
-    "price": 129.99,
-    "weight": 10.0,
-    "category": "67449e07e758a7de6111acee"
+    "name": "Frank Herbert - Dune",
+    "description": "A mythic and emotionally charged hero's journey, \"Dune\" tells the story of Paul Atreides, a brilliant and gifted young man born into a great destiny beyond his understanding, who must travel to the most dangerous planet in the universe to ensure the future of his family and his people..",
+    "price": 11.99,
+    "weight": 0.15,
+    "category": "67449e07e758a7de6111acf2"
+  },
+  {
+    "name": "Frank Herbert - Dune Messiah",
+    "description": "The story begun in Frank Herbert's classic novel DUNE continues with DUNE MESSIAH, an extraordinary novel about the price of victory and the cost of war.",
+    "price": 11.99,
+    "weight": 0.15,
+    "category": "67449e07e758a7de6111acf2"
   }
 ]
