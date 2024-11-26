@@ -58,7 +58,6 @@ router.get('/:id/seo-description', async (req, res) => {
             name: product.name,
             description: product.description,
             price: product.price,
-            weight: product.weight,
             category: product.category,
         };
 
@@ -70,7 +69,6 @@ router.get('/:id/seo-description', async (req, res) => {
                     Name: ${input.name}, 
                     Description: ${input.description}, 
                     Price: ${input.price}, 
-                    Weight: ${input.weight}, 
                     Category: ${input.category}`
                 },
             ],
