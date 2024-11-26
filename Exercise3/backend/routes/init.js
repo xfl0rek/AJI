@@ -1,10 +1,9 @@
 const express = require('express');
 const multer = require('multer');
-const fs = require('fs');
 const Product = require('../models/product');
 const router = express.Router();
 
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.post('/init', upload.single('file'), async (req, res) => {
     const file = req.file;
@@ -22,25 +21,22 @@ router.post('/init', upload.single('file'), async (req, res) => {
         let products = [];
 
         if (file.mimetype === 'application/json') {
-            const data = JSON.parse(fs.readFileSync(file.path, 'utf-8'));
+            const data = JSON.parse(file.buffer.toString('utf-8'));
             products = Array.isArray(data) ? data : [];
-        }  else {
+        } else {
             return res.status(400).json({ message: 'Invalid file type. Only JSON files are allowed.' });
         }
 
         for (const product of products) {
-            if (!product.name || !product.description || !product.price || !product.weight || !product.category) {
+            if (!product.name || !product.description || product.price == null || product.weight == null || !product.category) {
                 return res.status(400).json({ message: 'Invalid product format in the provided file.' });
             }
         }
 
         await Product.insertMany(products);
 
-        fs.unlinkSync(file.path);
-
         res.status(200).json({ message: 'Database initialized successfully.', productsAdded: products.length });
     } catch (err) {
-        fs.unlinkSync(file.path);
         res.status(500).json({ message: err.message });
     }
 });
