@@ -2,6 +2,7 @@ const express = require('express');
 const Product = require('../models/product');
 const router = express.Router();
 const Groq = require("groq-sdk");
+const authMiddleware = require('../config/auth')
 require('dotenv').config();
 
 const groq = new Groq({
@@ -13,7 +14,7 @@ router.get('/', async (req, res) => {
     res.json(products);
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', authMiddleware, async (req, res) => {
     try {
         const product = await Product.findById(req.params.id).populate('category');
         if (!product) return res.status(404).json({ message: 'Product not found' });
@@ -23,7 +24,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.post('/', async (req, res) => {
+router.post('/',authMiddleware,async (req, res) => {
     const { name, description, price, weight, category } = req.body;
 
     if (!name || !description || price <= 0 || weight <= 0) {
@@ -38,7 +39,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id',authMiddleware, async (req, res) => {
     try {
         const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!product) return res.status(404).json({ message: 'Product not found' });
@@ -48,7 +49,7 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-router.get('/:id/seo-description', async (req, res) => {
+router.get('/:id/seo-description',authMiddleware, async (req, res) => {
     const productId = req.params.id;
     try {
         const product = await Product.findById(productId);

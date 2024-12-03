@@ -1,9 +1,10 @@
 const express = require('express');
 const Order = require('../models/order');
 const OrderStatus = require('../models/order_status');
+const authMiddleware = require('../config/auth')
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.get('/',authMiddleware, async (req, res) => {
     try {
         const orders = await Order.find()
             .populate('status')
@@ -15,7 +16,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.post('/', async (req, res) => {
+router.post('/',authMiddleware, async (req, res) => {
     const { status, username, email, phone, items } = req.body;
 
     if (!status || !username || !email || !phone || !items || items.length === 0) {
@@ -54,7 +55,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.patch('/:id', async (req, res) => {
+router.patch('/:id',authMiddleware, async (req, res) => {
     const { status } = req.body;
 
     if (!status) {
@@ -78,7 +79,7 @@ router.patch('/:id', async (req, res) => {
     }
 });
 
-router.get('/status/:statusId', async (req, res) => {
+router.get('/status/:statusId', authMiddleware, async (req, res) => {
     try {
         const orders = await Order.find({ status: req.params.statusId })
             .populate('status')
@@ -94,7 +95,7 @@ router.get('/status/:statusId', async (req, res) => {
     }
 });
 
-router.post('/:id/opinions', async (req, res) => {
+router.post('/:id/opinions', authMiddleware, async (req, res) => {
     const { rating, comment } = req.body;
 
     if (!rating || rating < 1 || rating > 5 || !comment) {

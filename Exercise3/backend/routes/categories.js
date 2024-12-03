@@ -1,8 +1,9 @@
 const express = require('express');
 const Categories = require('../models/category');
 const router = express.Router();
+const authMiddleware = require('../config/auth')
 
-router.get('/', async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
     const categories = await Categories.find();
     res.json(categories);
 });
