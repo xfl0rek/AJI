@@ -81,7 +81,7 @@ router.patch('/:id', authMiddleware, async (req, res) => {
         }
 
         if (!order.status) {
-            order.status = statusExists._id;  // Przypisujemy _id, a nie nazwę
+            order.status = statusExists._id;
             await order.save();
             return res.json(order);
         }

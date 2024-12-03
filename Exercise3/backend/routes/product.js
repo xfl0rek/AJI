@@ -11,16 +11,16 @@ const groq = new Groq({
 
 const validateProduct = (product) => {
     if (!product.name || !product.name.trim()) {
-        throw new Error('Nazwa produktu nie może być pusta.');
+        throw new Error('Product name cannot be empty');
     }
     if (!product.description || !product.description.trim()) {
-        throw new Error('Opis produktu nie może być pusty.');
+        throw new Error('Product description cannot be empty.');
     }
     if (product.price <= 0) {
-        throw new Error('Cena produktu musi być większa niż 0.');
+        throw new Error('Product price cannot be less than 0');
     }
     if (product.weight <= 0) {
-        throw new Error('Waga produktu musi być większa niż 0.');
+        throw new Error('Product weigh cannot be less than 0');
     }
 };
 

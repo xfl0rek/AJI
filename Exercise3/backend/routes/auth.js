@@ -11,18 +11,18 @@ router.post('/login', async (req, res) => {
     const { login, password } = req.body;
 
     if (!login || !password) {
-        return res.status(400).json({ message: 'Login i hasło są wymagane.' });
+        return res.status(400).json({ message: 'Login and password are required' });
     }
 
     try {
         const user = await User.findOne({ login });
         if (!user) {
-            return res.status(401).json({ message: 'Niepoprawne dane logowania.' });
+            return res.status(401).json({ message: 'Incorrect login details.' });
         }
 
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
-            return res.status(401).json({ message: 'Niepoprawne dane logowania.' });
+            return res.status(401).json({ message: 'Incorrect login details.' });
         }
 
         const payload = {
@@ -31,12 +31,12 @@ router.post('/login', async (req, res) => {
             role: user.role
         };
 
-        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }); // Token ważny przez 1 godzinę
+        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: 300 });
         res.status(200).json({ token });
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Wewnętrzny błąd serwera.' });
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
@@ -44,13 +44,13 @@ router.post('/register', async (req, res) => {
     const { login, password, role } = req.body;
 
     if (!login || !password || !role) {
-        return res.status(400).json({ message: 'Login, hasło i rola są wymagane.' });
+        return res.status(400).json({ message: 'Login, password and role are required' });
     }
 
     try {
         const existingUser = await User.findOne({ login });
         if (existingUser) {
-            return res.status(400).json({ message: 'Użytkownik o tym loginie już istnieje.' });
+            return res.status(400).json({ message: 'User with this login exist' });
         }
 
         const newUser = new User({
@@ -60,10 +60,10 @@ router.post('/register', async (req, res) => {
         });
 
         await newUser.save();
-        res.status(201).json({ message: 'Użytkownik został zarejestrowany.' });
+        res.status(201).json({ message: 'User has been registered' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Błąd serwera przy rejestracji.' });
+        res.status(500).json({ message: 'Server error with registration' });
     }
 });
 
@@ -71,7 +71,7 @@ router.post('/refresh', async (req, res) => {
     const token = req.body.token || req.headers['authorization']?.split(' ')[1];
 
     if (!token) {
-        return res.status(400).json({ message: 'Brak tokenu.' });
+        return res.status(400).json({ message: 'Token missing' });
     }
 
     try {
@@ -79,7 +79,7 @@ router.post('/refresh', async (req, res) => {
         
         const user = await User.findById(decoded.id);
         if (!user) {
-            return res.status(401).json({ message: 'Użytkownik nie znaleziony.' });
+            return res.status(401).json({ message: 'User not found.' });
         }
 
         const newPayload = {
@@ -88,11 +88,11 @@ router.post('/refresh', async (req, res) => {
             role: user.role
         };
 
-        const newToken = jwt.sign(newPayload, JWT_SECRET, { expiresIn: '1h' }); // Nowy token ważny przez 1 godzinę
+        const newToken = jwt.sign(newPayload, JWT_SECRET, { expiresIn: 300 });
 
         res.status(200).json({ token: newToken });
     } catch (error) {
-        return res.status(403).json({ message: 'Niepoprawny lub wygasły token.' });
+        return res.status(403).json({ message: 'Incorrect or expired token' });
     }
 });
 
