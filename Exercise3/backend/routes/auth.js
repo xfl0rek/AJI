@@ -40,7 +40,32 @@ router.post('/login', async (req, res) => {
     }
 });
 
+router.post('/register', async (req, res) => {
+    const { login, password, role } = req.body;
 
+    if (!login || !password || !role) {
+        return res.status(400).json({ message: 'Login, hasło i rola są wymagane.' });
+    }
+
+    try {
+        const existingUser = await User.findOne({ login });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Użytkownik o tym loginie już istnieje.' });
+        }
+
+        const newUser = new User({
+            login,
+            password,
+            role
+        });
+
+        await newUser.save();
+        res.status(201).json({ message: 'Użytkownik został zarejestrowany.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Błąd serwera przy rejestracji.' });
+    }
+});
 
 router.post('/refresh', async (req, res) => {
     const token = req.body.token || req.headers['authorization']?.split(' ')[1];

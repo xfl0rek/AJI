@@ -3,8 +3,10 @@ const Order = require('../models/order');
 const OrderStatus = require('../models/order_status');
 const authMiddleware = require('../config/auth')
 const router = express.Router();
+const checkRole = require('../config/role');
 
-router.get('/',authMiddleware, async (req, res) => {
+
+router.get('/',authMiddleware, checkRole(['PRACOWNIK']), async (req, res) => {
     try {
         const orders = await Order.find()
             .populate('status')
