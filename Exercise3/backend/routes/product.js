@@ -9,6 +9,21 @@ const groq = new Groq({
     apiKey: process.env.API_KEY
 });
 
+const validateProduct = (product) => {
+    if (!product.name || !product.name.trim()) {
+        throw new Error('Nazwa produktu nie może być pusta.');
+    }
+    if (!product.description || !product.description.trim()) {
+        throw new Error('Opis produktu nie może być pusty.');
+    }
+    if (product.price <= 0) {
+        throw new Error('Cena produktu musi być większa niż 0.');
+    }
+    if (product.weight <= 0) {
+        throw new Error('Waga produktu musi być większa niż 0.');
+    }
+};
+
 router.get('/', async (req, res) => {
     const products = await Product.find().populate('category');
     res.json(products);
@@ -24,25 +39,30 @@ router.get('/:id', authMiddleware, async (req, res) => {
     }
 });
 
-router.post('/',authMiddleware,async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
     const { name, description, price, weight, category } = req.body;
 
-    if (!name || !description || price <= 0 || weight <= 0) {
-        return res.status(400).json({ message: 'Invalid input' });
-    }
-
     try {
-        const product = await Product.create({ name, description, price, weight, category });
+        const newProduct = { name, description, price, weight, category };
+
+        const product = await Product.create(newProduct);
         res.status(201).json(product);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(400).json({ message: err.message });
     }
 });
 
-router.put('/:id',authMiddleware, async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
     try {
         const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!product) return res.status(404).json({ message: 'Product not found' });
+
+        try {
+            validateProduct(req.body);
+        } catch (err) {
+            return res.status(400).json({ message: err.message });
+        }
+
         res.json(product);
     } catch (err) {
         res.status(500).json({ message: err.message });
