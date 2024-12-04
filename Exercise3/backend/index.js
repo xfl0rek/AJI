@@ -18,7 +18,7 @@ app.use('/api/products', authMiddleware, productRoutes);
 app.use('/api/categories', authMiddleware, categoryRoutes);
 app.use('/api/statuses', authMiddleware, orderStatusRoutes);
 app.use('/api/orders', authMiddleware, ordersRoutes);
-app.use('/api', init);
+app.use('/api', authMiddleware, init);
 
 connectDB();
 
