@@ -15,10 +15,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['KLIENT', 'PRACOWNIK'],
         required: true
-    },
-    refreshToken: {
-        type: String,
-        default: null
     }
 });
 
