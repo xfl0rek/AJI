@@ -6,7 +6,8 @@ const authMiddleware = require('../config/auth')
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-router.post('/init', authMiddleware, upload.single('file'), async (req, res) => {
+// router.post('/init', authMiddleware, upload.single('file'), async (req, res) => {
+router.post('/init', upload.single('file'), async (req, res) => {  
     const file = req.file;
 
     if (!file) {

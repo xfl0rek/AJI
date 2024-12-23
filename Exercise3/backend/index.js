@@ -11,14 +11,32 @@ const init = require('./routes/init');
 
 const app = express();
 
+const cors = require('cors');
+
+
+const corsOptions = {
+    origin: 'http://localhost:5173', // lub '*' aby zezwolić na zapytania z każdej domeny
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
+
 
 app.use(bodyParser.json());
-app.use('/api/auth', authRoutes);
-app.use('/api/products', authMiddleware, productRoutes);
-app.use('/api/categories', authMiddleware, categoryRoutes);
-app.use('/api/statuses', authMiddleware, orderStatusRoutes);
-app.use('/api/orders', authMiddleware, ordersRoutes);
-app.use('/api', authMiddleware, init);
+// app.use('/api/auth', authRoutes);
+// app.use('/api/products', authMiddleware, productRoutes);
+// app.use('/api/categories', authMiddleware, categoryRoutes);
+// app.use('/api/statuses', authMiddleware, orderStatusRoutes);
+// app.use('/api/orders', authMiddleware, ordersRoutes);
+// app.use('/api', authMiddleware, init);
+
+//app.use('/api/auth');
+app.use('/api/products', productRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/statuses',  orderStatusRoutes);
+app.use('/api/orders', ordersRoutes);
+app.use('/api', init);
 
 connectDB();
 
