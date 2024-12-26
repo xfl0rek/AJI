@@ -6,7 +6,8 @@ const authMiddleware = require('../config/auth');
 const router = express.Router();
 const checkRole = require('../config/role');
 
-router.get('/', authMiddleware, checkRole(['PRACOWNIK']), async (req, res) => {
+// router.get('/', authMiddleware, checkRole(['PRACOWNIK']), async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const orders = await Order.find()
             .populate('status')
@@ -18,49 +19,65 @@ router.get('/', authMiddleware, checkRole(['PRACOWNIK']), async (req, res) => {
     }
 });
 
-router.post('/', authMiddleware, async (req, res) => {
-    const { status, username, email, phone, items } = req.body;
+// router.post('/', authMiddleware, async (req, res) => {
 
-    if (!status || !username || !email || !phone || !items || items.length === 0) {
-        return res.status(400).json({ message: 'Invalid input. Please provide all required fields.' });
-    }
-
-    const phoneRegex = /^\d+$/;
-    if (!phoneRegex.test(phone)) {
-        return res.status(400).json({ message: 'Phone number must contain only digits.' });
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        return res.status(400).json({ message: 'Invalid email format.' });
-    }
-
-    for (const item of items) {
-        if (item.quantity <= 0) {
-            return res.status(400).json({ message: 'Quantity must be greater than 0.' });
+    router.post('/', async (req, res) => {
+        const { status, username, email, phone, items } = req.body;
+    
+        if (!status || !username || !email || !phone || !items || items.length === 0) {
+            console.log("Błąd: Brak wymaganych danych w żądaniu:", req.body);
+            return res.status(400).json({ message: 'Invalid input. Please provide all required fields.' });
         }
-
-        const productExists = await Product.findById(item.product);
-        if (!productExists) {
-            return res.status(400).json({ message: `Product with ID ${item.product} does not exist.` });
+    
+        const phoneRegex = /^\d+$/;
+        if (!phoneRegex.test(phone)) {
+            console.log("Błąd: Niepoprawny numer telefonu:", phone);
+            return res.status(400).json({ message: 'Phone number must contain only digits.' });
         }
-    }
-
-    try {
-        const newOrder = new Order({
-            status,
-            username,
-            email,
-            phone,
-            items,
-        });
-
-        const savedOrder = await newOrder.save();
-        res.status(201).json(savedOrder);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
+    
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            console.log("Błąd: Niepoprawny email:", email);
+            return res.status(400).json({ message: 'Invalid email format.' });
+        }
+    
+        for (const item of items) {
+            if (item.quantity <= 0) {
+                console.log("Błąd: Niepoprawna ilość w zamówieniu:", item);
+                return res.status(400).json({ message: 'Quantity must be greater than 0.' });
+            }
+    
+            const productExists = await Product.findById(item.product);
+            if (!productExists) {
+                console.log(`Błąd: Produkt o ID ${item.product} nie istnieje.`);
+                return res.status(400).json({ message: `Product with ID ${item.product} does not exist.` });
+            }
+        }
+    
+        try {
+            const orderStatus = await OrderStatus.findOne({ name: status });
+            
+            if (!orderStatus) {
+                return res.status(400).json({ message: `Status "${status}" does not exist.` });
+            }
+    
+            const newOrder = new Order({
+                status: orderStatus._id,
+                username,
+                email,
+                phone,
+                items,
+            });
+    
+            const savedOrder = await newOrder.save();
+            res.status(201).json(savedOrder);
+        } catch (err) {
+            console.error("Błąd podczas tworzenia zamówienia:", err);
+            res.status(500).json({ message: err.message });
+        }
+    });
+    
+    
 
 router.patch('/:id', authMiddleware, async (req, res) => {
     const { status } = req.body;

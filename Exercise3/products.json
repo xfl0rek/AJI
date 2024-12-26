@@ -4,48 +4,48 @@
     "description": "High-end smartphone with 128GB storage and excellent camera.",
     "price": 799.99,
     "weight": 0.2,
-    "category": "67501f3e0d39678294aaf475"
+    "category": "676d80b1fa2be15a33b45a8a"
   },
   {
     "name": "Laptop Pro 15",
     "description": "Lightweight and powerful laptop with 16GB RAM and 1TB SSD.",
     "price": 1499.99,
     "weight": 1.5,
-    "category": "67501f3e0d39678294aaf475"
+    "category": "676d80b1fa2be15a33b45a8a"
   },
   {
     "name": "Wireless Headphones",
     "description": "Noise-cancelling headphones with 20-hour battery life.",
     "price": 199.99,
     "weight": 0.3,
-    "category": "67501f3e0d39678294aaf475"
+    "category": "676d80b1fa2be15a33b45a8a"
   },
   {
     "name": "Electric Kettle",
     "description": "1.7L stainless steel electric kettle with auto shut-off.",
     "price": 29.99,
     "weight": 1.2,
-    "category": "67501f3e0d39678294aaf475"
+    "category": "676d80b1fa2be15a33b45a8a"
   },
   {
     "name": "Gaming Mouse",
     "description": "RGB gaming mouse with customizable buttons and DPI settings.",
     "price": 49.99,
     "weight": 0.15,
-    "category": "67501f3e0d39678294aaf475"
+    "category": "676d80b1fa2be15a33b45a8a"
   },
   {
     "name": "Frank Herbert - Dune",
     "description": "A mythic and emotionally charged hero's journey, \"Dune\" tells the story of Paul Atreides, a brilliant and gifted young man born into a great destiny beyond his understanding, who must travel to the most dangerous planet in the universe to ensure the future of his family and his people..",
     "price": 11.99,
     "weight": 0.15,
-    "category": "67501f3e0d39678294aaf479"
+    "category": "676d80b2fa2be15a33b45a8e"
   },
   {
     "name": "Frank Herbert - Dune Messiah",
     "description": "The story begun in Frank Herbert's classic novel DUNE continues with DUNE MESSIAH, an extraordinary novel about the price of victory and the cost of war.",
     "price": 11.99,
     "weight": 0.15,
-    "category": "67501f3e0d39678294aaf479"
+    "category": "676d80b2fa2be15a33b45a8e"
   }
 ]

@@ -1,50 +1,153 @@
-// import React from 'react';
+import React, { useState } from 'react';
+import { createOrder } from '../api';
+import '../App.css';
 
-// const Cart = ({ cartItems, updateQuantity, removeFromCart }) => {
-//   const getTotalPrice = () => {
-//     return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-//   };
+const Cart = ({ cart, setCart, onPlaceOrder }) => {
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [isFormValid, setIsFormValid] = useState(true);
 
-//   return (
-//     <div className="container mt-4">
-//       <h2>Twój Koszyk</h2>
-//       <table className="table">
-//         <thead>
-//           <tr>
-//             <th>Nazwa</th>
-//             <th>Ilość</th>
-//             <th>Cena</th>
-//             <th>Akcje</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {cartItems.map((item) => (
-//             <tr key={item.id}>
-//               <td>{item.name}</td>
-//               <td>
-//                 <button className="btn btn-secondary" onClick={() => updateQuantity(item, 'decrease')}>-</button>
-//                 <input
-//                   type="number"
-//                   value={item.quantity}
-//                   onChange={(e) => updateQuantity(item, 'update', e.target.value)}
-//                   min="1"
-//                   className="mx-2"
-//                 />
-//                 <button className="btn btn-secondary" onClick={() => updateQuantity(item, 'increase')}>+</button>
-//               </td>
-//               <td>{item.price * item.quantity} PLN</td>
-//               <td>
-//                 <button className="btn btn-danger" onClick={() => removeFromCart(item)}>
-//                   Usuń
-//                 </button>
-//               </td>
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
-//       <h4>Łączna cena: {getTotalPrice()} PLN</h4>
-//     </div>
-//   );
-// };
+  const removeFromCart = (productId) => {
+    setCart((prevCart) => prevCart.filter((item) => item.product._id !== productId));
+  };
 
-// export default Cart;
+  const handleQuantityChange = (productId, delta) => {
+    setCart((prevCart) => {
+      return prevCart.map((item) => {
+        if (item.product._id === productId) {
+          const newQuantity = item.quantity + delta;
+          if (newQuantity > 0) {
+            return { ...item, quantity: newQuantity };
+          }
+        }
+        return item;
+      });
+    });
+  };
+
+  const calculateTotal = () => {
+    return cart.reduce((total, item) => total + item.product.price * item.quantity, 0).toFixed(2);
+  };
+
+  const validateForm = () => {
+    if (username && email && phone) {
+      setIsFormValid(true);
+      return true;
+    }
+    setIsFormValid(false);
+    return false;
+  };
+
+  const handleSubmitOrder = async () => {
+    if (!validateForm()) return;
+
+    const orderData = {
+      status: "UNCONFIRMED",
+      username,
+      email,
+      phone,
+      items: cart.map(item => ({
+        product: item.product._id,
+        quantity: item.quantity,
+      })),
+    };
+
+    try {
+      const result = await createOrder(orderData);
+      if (result) {
+        alert('Zamówienie zostało złożone');
+        setCart([]);
+        onPlaceOrder();
+      } else {
+        alert('Błąd składania zamówienia');
+      }
+    } catch (error) {
+      alert('Błąd połączenia z serwerem');
+      console.error('Error:', error);
+    }
+  };
+
+  return (
+    <div>
+      <h2>Twój koszyk</h2>
+      {cart.length === 0 ? (
+        <p>Twój koszyk jest pusty</p>
+      ) : (
+        <table className="cart-table">
+          <thead>
+            <tr>
+              <th>Produkt</th>
+              <th>Ilość</th>
+              <th>Cena</th>
+              <th>Akcja</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cart.map((item) => (
+              <tr key={item.product._id}>
+                <td>{item.product.name}</td>
+                <td>
+                  <button onClick={() => handleQuantityChange(item.product._id, -1)}>-</button>
+                  {item.quantity}
+                  <button onClick={() => handleQuantityChange(item.product._id, 1)}>+</button>
+                </td>
+                <td>{(item.product.price * item.quantity).toFixed(2)} zł</td>
+                <td>
+                  <button onClick={() => removeFromCart(item.product._id)}>Usuń</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <div className="cart-total">
+        <p>Łączna cena: {calculateTotal()} zł</p>
+      </div>
+
+      {cart.length > 0 && (
+        <div className="order-form">
+          <h3>Podaj dane do zamówienia</h3>
+          <form className="form">
+            <div className="form-group">
+              <label>Imię:</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Wpisz swoje imię"
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Email:</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Wpisz swój email"
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Telefon:</label>
+              <input
+                type="text"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Wpisz swój numer telefonu"
+                className="form-input"
+              />
+            </div>
+            {!isFormValid && <p style={{ color: 'red' }}>Wszystkie pola są wymagane!</p>}
+          </form>
+          <button onClick={handleSubmitOrder} disabled={cart.length === 0 || !isFormValid} className="submit-btn">
+            Złóż zamówienie
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Cart;

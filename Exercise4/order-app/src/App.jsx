@@ -1,53 +1,92 @@
 import React, { useState } from 'react';
 import ProductList from './components/ProductList';
-//import Cart from './components/Cart';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import Cart from './components/Cart';
 
 const App = () => {
-  // const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState([]);
+  const [orderPlaced, setOrderPlaced] = useState(false);
+  const [orderHistory, setOrderHistory] = useState([]);
 
-  // const addToCart = (product) => {
-  //   const existingProduct = cart.find((item) => item.id === product.id);
-  //   if (existingProduct) {
-  //     setCart(cart.map((item) => 
-  //       item.id === product.id 
-  //       ? { ...item, quantity: item.quantity + 1 } 
-  //       : item
-  //     ));
-  //   } else {
-  //     setCart([...cart, { ...product, quantity: 1 }]);
-  //   }
-  // };
+  const handleAddToCart = (product) => {
+    setCart((prevCart) => {
+      const existingProductIndex = prevCart.findIndex(
+        (item) => item.product._id === product._id
+      );
 
-  // const updateQuantity = (product, action, value) => {
-  //   if (action === 'decrease' && product.quantity > 1) {
-  //     setCart(cart.map((item) =>
-  //       item.id === product.id ? { ...item, quantity: item.quantity - 1 } : item
-  //     ));
-  //   } else if (action === 'increase') {
-  //     setCart(cart.map((item) =>
-  //       item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-  //     ));
-  //   } else if (action === 'update') {
-  //     const newQuantity = Math.max(1, parseInt(value));
-  //     setCart(cart.map((item) =>
-  //       item.id === product.id ? { ...item, quantity: newQuantity } : item
-  //     ));
-  //   }
-  // };
+      if (existingProductIndex !== -1) {
+        const updatedCart = [...prevCart];
+        updatedCart[existingProductIndex].quantity += 0.5;
+        return updatedCart;
+      } else {
+        return [...prevCart, { product, quantity: 1 }];
+      }
+    });
+  };
 
-  // const removeFromCart = (product) => {
-  //   setCart(cart.filter((item) => item.id !== product.id));
-  // };
+  const handlePlaceOrder = () => {
+    const orderDetails = {
+      items: cart,
+      totalAmount: cart.reduce(
+        (total, item) => total + item.quantity * item.product.price,
+        0
+      ).toFixed(2),
+      date: new Date().toLocaleString(),
+    };
+
+    setOrderHistory([...orderHistory, orderDetails]);
+
+    setOrderPlaced(true);
+    setCart([]);
+  };
+
+  const handleResetOrder = () => {
+    setOrderPlaced(false);
+  };
 
   return (
-    // <div className="App">
-    //   <ProductList addToCart={addToCart} />
-    //   <Cart cartItems={cart} updateQuantity={updateQuantity} removeFromCart={removeFromCart} />
-    // </div>
+    <div className="App">
+      <ProductList onAddToCart={handleAddToCart} cart={cart} setCart={setCart} />
 
-    <div className = "App">
-      <ProductList></ProductList>
+      {orderPlaced ? (
+        <div>
+          <h2>Twoje zamówienie zostało złożone!</h2>
+          <button onClick={handleResetOrder}>Powróć do sklepu</button>
+        </div>
+      ) : (
+        <Cart cart={cart} setCart={setCart} onPlaceOrder={handlePlaceOrder} />
+      )}
+
+      <h2>Twoje zamówienia</h2>
+      {orderHistory.length > 0 ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Data zamówienia</th>
+              <th>Łączna wartość</th>
+              <th>Produkty</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orderHistory.map((order, index) => (
+              <tr key={index}>
+                <td>{order.date}</td>
+                <td>{order.totalAmount} zł</td>
+                <td>
+                  <ul>
+                    {order.items.map((item) => (
+                      <li key={item.product._id}>
+                        {item.product.name} - {item.quantity} szt.
+                      </li>
+                    ))}
+                  </ul>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>Brak zamówień.</p>
+      )}
     </div>
   );
 };
