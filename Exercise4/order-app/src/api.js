@@ -5,9 +5,25 @@ const api = axios.create({
   timeout: 5000,
 });
 
+const getToken = () => {
+  return localStorage.getItem('token');
+};
+
+const addAuthHeader = () => {
+  const token = getToken();
+  if (token) {
+    return {
+      Authorization: `Bearer ${token}`,
+    };
+  }
+  return {};
+};
+
 export const getProducts = async () => {
   try {
-    const response = await api.get('/products');
+    const response = await api.get('/products', {
+      headers: addAuthHeader(),
+    });
     return response.data;
   } catch (error) {
     console.error('Błąd podczas pobierania produktów:', error);
@@ -17,7 +33,9 @@ export const getProducts = async () => {
 
 export const getCategories = async () => {
   try {
-    const response = await api.get('/categories');
+    const response = await api.get('/categories', {
+      headers: addAuthHeader(), // Dodanie nagłówka autoryzacji
+    });
     console.log(response.data);
     return response.data;
   } catch (error) {
@@ -28,33 +46,37 @@ export const getCategories = async () => {
 
 export const getOrders = async () => {
   try {
-    const response = await axios.get('/orders');
+    const response = await api.get('/orders', {
+      headers: addAuthHeader(),
+    });
     return response.data;
   } catch (error) {
-    console.error('Error fetching orders:', error);
+    console.error('Błąd podczas pobierania zamówień:', error);
     throw error;
   }
 };
 
 export const updateOrderStatus = async (orderId, status) => {
   try {
-    const response = await axios.patch('/orders/${orderId}', { status });
-    return response.data; // Zwraca zaktualizowane zamówienie
+    const response = await api.patch(`/orders/${orderId}`, { status }, {
+      headers: addAuthHeader(),
+    });
+    return response.data;
   } catch (error) {
-    console.error(`Error updating order ${orderId}:`, error);
+    console.error(`Błąd podczas aktualizacji zamówienia ${orderId}:`, error);
     throw error;
   }
 };
 
-export async function createOrder(orderData) {
+export const createOrder = async (orderData) => {
   try {
-      console.log("Dane wysyłane do serwera:", orderData);
-      const response = await axios.post('http://localhost:5000/api/orders', orderData);
-      return response.data;
+    console.log("Dane wysyłane do serwera:", orderData);
+    const response = await api.post('/orders', orderData, {
+      headers: addAuthHeader(),
+    });
+    return response.data;
   } catch (error) {
-      console.error("Błąd podczas składania zamówienia:", error);
-      throw error;
+    console.error("Błąd podczas składania zamówienia:", error);
+    throw error;
   }
-}
-
-
+};

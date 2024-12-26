@@ -24,7 +24,7 @@ const validateProduct = (product) => {
     }
 };
 
-router.get('/', async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
     const products = await Product.find().populate('category');
     res.json(products);
 });

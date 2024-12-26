@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getProducts, getCategories } from '../api';
 import '../App.css';
-import Cart from './Cart';
 
 const ProductList = ({ cart, setCart }) => {
   const [products, setProducts] = useState([]);

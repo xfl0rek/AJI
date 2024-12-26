@@ -6,8 +6,7 @@ const authMiddleware = require('../config/auth');
 const router = express.Router();
 const checkRole = require('../config/role');
 
-// router.get('/', authMiddleware, checkRole(['PRACOWNIK']), async (req, res) => {
-router.get('/', async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
     try {
         const orders = await Order.find()
             .populate('status')
@@ -19,9 +18,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// router.post('/', authMiddleware, async (req, res) => {
-
-    router.post('/', async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
         const { status, username, email, phone, items } = req.body;
     
         if (!status || !username || !email || !phone || !items || items.length === 0) {
