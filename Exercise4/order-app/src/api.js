@@ -34,7 +34,7 @@ export const getProducts = async () => {
 export const getCategories = async () => {
   try {
     const response = await api.get('/categories', {
-      headers: addAuthHeader(), // Dodanie nagłówka autoryzacji
+      headers: addAuthHeader(),
     });
     console.log(response.data);
     return response.data;
@@ -44,17 +44,20 @@ export const getCategories = async () => {
   }
 };
 
-export const getOrders = async () => {
+export const getOrders = async (token) => {
   try {
     const response = await api.get('/orders', {
-      headers: addAuthHeader(),
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
     return response.data;
   } catch (error) {
-    console.error('Błąd podczas pobierania zamówień:', error);
-    throw error;
+    console.error('Błąd podczas pobierania zamówień:', error.message);
+    throw new Error('Nie udało się pobrać zamówień. Spróbuj ponownie później.');
   }
 };
+
 
 export const updateOrderStatus = async (orderId, status) => {
   try {
@@ -68,15 +71,16 @@ export const updateOrderStatus = async (orderId, status) => {
   }
 };
 
-export const createOrder = async (orderData) => {
+export const createOrder = async (orderData, token) => {
   try {
-    console.log("Dane wysyłane do serwera:", orderData);
-    const response = await api.post('/orders', orderData, {
-      headers: addAuthHeader(),
+    const response = await axios.post('http://localhost:5000/api/orders', orderData, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
     });
     return response.data;
   } catch (error) {
-    console.error("Błąd podczas składania zamówienia:", error);
+    console.error('Błąd przy tworzeniu zamówienia:', error);
     throw error;
   }
 };

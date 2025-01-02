@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ProductList from '../components/ProductList';
 import Cart from '../components/Cart';
+import { createOrder, getOrders } from '../api';
 
 const MainPage = ({ onLogout }) => {
   const [cart, setCart] = useState([]);
@@ -12,7 +13,6 @@ const MainPage = ({ onLogout }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       const token = localStorage.getItem('token');
-      console.log(token);
       if (!token) {
         onLogout();
         return;
@@ -20,11 +20,11 @@ const MainPage = ({ onLogout }) => {
 
       try {
         const response = await axios.get('http://localhost:5000/api/products', {
-          headers: {'Authorization': `Bearer ${token}`}
+          headers: { 'Authorization': `Bearer ${token}` },
         });
         setProducts(response.data);
       } catch (error) {
-        console.error('Błąd przy pobieraniu produktów', error);
+        console.error('Błąd przy pobieraniu produktów:', error);
         if (error.response && error.response.status === 401) {
           onLogout();
         }
@@ -33,6 +33,26 @@ const MainPage = ({ onLogout }) => {
 
     fetchProducts();
   }, [onLogout]);
+
+  useEffect(() => {
+    const fetchOrderHistory = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        onLogout();
+        return;
+      }
+
+      try {
+        const orders = await getOrders(token);
+        setOrderHistory(orders);
+      } catch (error) {
+        console.error('Błąd przy pobieraniu historii zamówień:', error);
+        alert('Nie udało się pobrać historii zamówień.');
+      }
+    };
+
+    fetchOrderHistory();
+  }, [onLogout, orderPlaced]);
 
   const handleAddToCart = (product) => {
     setCart((prevCart) => {
@@ -50,7 +70,7 @@ const MainPage = ({ onLogout }) => {
     });
   };
 
-  const handlePlaceOrder = async () => {
+  const handlePlaceOrder = async (userData) => {
     const token = localStorage.getItem('token');
     if (!token) {
       onLogout();
@@ -58,28 +78,22 @@ const MainPage = ({ onLogout }) => {
     }
 
     const orderDetails = {
-      items: cart,
-      totalAmount: cart.reduce(
-        (total, item) => total + item.quantity * item.product.price,
-        0
-      ).toFixed(2),
+      ...userData,
+      status: "UNCONFIRMED",
+      items: cart.map((item) => ({
+        product: item.product._id,
+        quantity: item.quantity,
+      })),
     };
 
     try {
-      const response = await axios.post('http://localhost:5000/api/orders', orderDetails, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (response.status === 201) {
-        setOrderPlaced(true);
-        setCart([]);
-      }
+      await createOrder(orderDetails, token);
+      alert('Zamówienie zostało złożone');
+      setCart([]);
+      setOrderPlaced(true);
     } catch (error) {
-      console.error('Błąd przy składaniu zamówienia', error);
-      if (error.response && error.response.status === 401) {
-        onLogout(); // Przekieruj do strony logowania, jeśli token jest nieautoryzowany
-      }
+      console.error('Błąd przy składaniu zamówienia:', error);
+      alert('Nie udało się złożyć zamówienia.');
     }
   };
 
@@ -100,7 +114,7 @@ const MainPage = ({ onLogout }) => {
         <Cart cart={cart} setCart={setCart} onPlaceOrder={handlePlaceOrder} />
       )}
 
-      <h2>Twoje zamówienia</h2>
+      {/* <h2>Twoje zamówienia</h2>
       {orderHistory.length > 0 ? (
         <table>
           <thead>
@@ -130,7 +144,7 @@ const MainPage = ({ onLogout }) => {
         </table>
       ) : (
         <p>Brak zamówień.</p>
-      )}
+      )} */}
     </div>
   );
 };

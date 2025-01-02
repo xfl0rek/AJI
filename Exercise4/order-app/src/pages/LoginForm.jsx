@@ -15,8 +15,8 @@ const LoginForm = ({ onLogin }) => {
       });
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem('token', data.token); // Zapisywanie tokenu w localStorage
-        console.log('Token saved:', data.token); // Logowanie tokenu
+        localStorage.setItem('token', data.token);
+        console.log('Token saved:', data.token);
         onLogin();
       } else {
         setError('Błąd logowania');

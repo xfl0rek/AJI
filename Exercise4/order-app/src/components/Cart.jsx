@@ -39,34 +39,18 @@ const Cart = ({ cart, setCart, onPlaceOrder }) => {
     return false;
   };
 
-  const handleSubmitOrder = async () => {
+  const handleSubmitOrder = () => {
     if (!validateForm()) return;
-
-    const orderData = {
-      status: "UNCONFIRMED",
+  
+    const userData = {
       username,
       email,
       phone,
-      items: cart.map(item => ({
-        product: item.product._id,
-        quantity: item.quantity,
-      })),
     };
-
-    try {
-      const result = await createOrder(orderData);
-      if (result) {
-        alert('Zamówienie zostało złożone');
-        setCart([]);
-        onPlaceOrder();
-      } else {
-        alert('Błąd składania zamówienia');
-      }
-    } catch (error) {
-      alert('Błąd połączenia z serwerem');
-      console.error('Error:', error);
-    }
+  
+    onPlaceOrder(userData);
   };
+  
 
   return (
     <div>
