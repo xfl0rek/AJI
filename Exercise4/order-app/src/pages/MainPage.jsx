@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import ProductList from '../components/ProductList';
 import Cart from '../components/Cart';
@@ -9,6 +9,40 @@ const MainPage = ({ onLogout }) => {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderHistory, setOrderHistory] = useState([]);
   const [products, setProducts] = useState([]);
+  const [userRole, setUserRole] = useState(null);
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        onLogout();
+        return;
+      }
+
+      const username = localStorage.getItem('login');
+      if (!username) {
+        onLogout();
+        return;
+      }
+
+      try {
+        const response = await axios.get(`http://localhost:5000/api/users/${username}`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        const role = response.data.role;
+        setUserRole(role);
+        setUserData(response.data);
+      } catch (error) {
+        console.error('Błąd przy pobieraniu danych użytkownika:', error);
+        if (error.response && error.response.status === 401) {
+          onLogout();
+        }
+      }
+    };
+
+    fetchUserRole();
+  }, [onLogout]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -57,7 +91,7 @@ const MainPage = ({ onLogout }) => {
   const handleAddToCart = (product) => {
     setCart((prevCart) => {
       const existingProductIndex = prevCart.findIndex(
-        (item) => item.product._id === product._id
+          (item) => item.product._id === product._id
       );
 
       if (existingProductIndex !== -1) {
@@ -97,55 +131,45 @@ const MainPage = ({ onLogout }) => {
     }
   };
 
+  if (userRole === null) {
+    return <div>Ładowanie...</div>;
+  }
+
   return (
-    <div className="MainPage">
-      <header>
-        <h1>Sklep Internetowy</h1>
-        <button onClick={onLogout}>Wyloguj się</button>
-      </header>
-      <ProductList onAddToCart={handleAddToCart} cart={cart} setCart={setCart} />
+      <div className="MainPage">
+        <header>
+          <h1>Sklep Internetowy</h1>
+          <button onClick={onLogout}>Wyloguj się</button>
+        </header>
 
-      {orderPlaced ? (
-        <div>
-          <h2>Twoje zamówienie zostało złożone!</h2>
-          <button onClick={() => setOrderPlaced(false)}>Powróć do sklepu</button>
-        </div>
-      ) : (
-        <Cart cart={cart} setCart={setCart} onPlaceOrder={handlePlaceOrder} />
-      )}
-
-      {/* <h2>Twoje zamówienia</h2>
-      {orderHistory.length > 0 ? (
-        <table>
-          <thead>
-            <tr>
-              <th>Data zamówienia</th>
-              <th>Łączna wartość</th>
-              <th>Produkty</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orderHistory.map((order, index) => (
-              <tr key={index}>
-                <td>{order.date}</td>
-                <td>{order.totalAmount} zł</td>
-                <td>
-                  <ul>
-                    {order.items.map((item) => (
-                      <li key={item.product._id}>
-                        {item.product.name} - {item.quantity} szt.
-                      </li>
-                    ))}
-                  </ul>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p>Brak zamówień.</p>
-      )} */}
-    </div>
+        {userRole === 'KLIENT' ? (
+            <>
+              <ProductList onAddToCart={handleAddToCart} cart={cart} setCart={setCart} />
+              {orderPlaced ? (
+                  <div>
+                    <h2>Twoje zamówienie zostało złożone!</h2>
+                    <button onClick={() => setOrderPlaced(false)}>Powróć do sklepu</button>
+                  </div>
+              ) : (
+                  <Cart cart={cart} setCart={setCart} onPlaceOrder={handlePlaceOrder} />
+              )}
+            </>
+        ) : userRole === 'PRACOWNIK' ? (
+            <div>
+              <h2>Panel Pracownika</h2>
+              <h3>Lista użytkowników:</h3>
+              <ul>
+                {orderHistory.map((order, index) => (
+                    <li key={index}>
+                      Zamówienie: {order._id} - {order.totalAmount} zł
+                    </li>
+                ))}
+              </ul>
+            </div>
+        ) : (
+            <div>Brak uprawnień.</div>
+        )}
+      </div>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const LoginForm = ({ onLogin }) => {
   const [login, setLogin] = useState('');
@@ -16,6 +16,7 @@ const LoginForm = ({ onLogin }) => {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('token', data.token);
+        localStorage.setItem('login', login)
         console.log('Token saved:', data.token);
         onLogin();
       } else {

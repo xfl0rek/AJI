@@ -8,6 +8,7 @@ const categoryRoutes = require('./routes/categories');
 const orderStatusRoutes = require('./routes/order_status');
 const ordersRoutes = require('./routes/orders');
 const init = require('./routes/init');
+const userRoutes = require('./routes/user');
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/categories', authMiddleware, categoryRoutes);
 app.use('/api/statuses', authMiddleware, orderStatusRoutes);
 app.use('/api/orders', authMiddleware, ordersRoutes);
 app.use('/api', authMiddleware, init);
+app.use('/api/users', authMiddleware, userRoutes);
 
 // app.use('/api/auth');
 // app.use('/api/products', productRoutes);
