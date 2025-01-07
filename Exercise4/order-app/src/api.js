@@ -58,7 +58,6 @@ export const getOrders = async (token) => {
   }
 };
 
-
 export const updateOrderStatus = async (orderId, status) => {
   try {
     const response = await api.patch(`/orders/${orderId}`, { status }, {
@@ -81,6 +80,20 @@ export const createOrder = async (orderData, token) => {
     return response.data;
   } catch (error) {
     console.error('Błąd przy tworzeniu zamówienia:', error);
+    throw error;
+  }
+};
+
+export  const getOrderStatuses = async (token) => {
+  try {
+    const response = await axios.get('/statuses', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Błąd podczas pobierania statusów zamówień', error.message);
     throw error;
   }
 };

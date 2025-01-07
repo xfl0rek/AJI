@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getOrders } from '../api';
+import { getOrders, getOrderStatuses, updateOrderStatus } from '../api';
 
 const OrderList = ({ token }) => {
     const [orders, setOrders] = useState([]);
@@ -10,7 +10,11 @@ const OrderList = ({ token }) => {
         const fetchOrders = async () => {
             try {
                 const fetchedOrders = await getOrders(token);
-                setOrders(fetchedOrders);
+                const filteredOrders = fetchedOrders.filter(order =>
+                    ['UNCONFIRMED', 'CONFIRMED', 'CANCELLED'].includes(order.status.name)
+                );
+
+                setOrders(filteredOrders);
                 setLoading(false);
             } catch (err) {
                 console.error('Błąd przy pobieraniu zamówień:', err);
