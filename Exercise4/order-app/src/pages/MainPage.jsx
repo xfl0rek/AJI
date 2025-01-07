@@ -3,6 +3,7 @@ import axios from 'axios';
 import ProductList from '../components/ProductList';
 import Cart from '../components/Cart';
 import { createOrder, getOrders } from '../api';
+import OrderList from "../components/OrderList.jsx";
 
 const MainPage = ({ onLogout }) => {
   const [cart, setCart] = useState([]);
@@ -157,14 +158,7 @@ const MainPage = ({ onLogout }) => {
         ) : userRole === 'PRACOWNIK' ? (
             <div>
               <h2>Panel Pracownika</h2>
-              <h3>Lista użytkowników:</h3>
-              <ul>
-                {orderHistory.map((order, index) => (
-                    <li key={index}>
-                      Zamówienie: {order._id} - {order.totalAmount} zł
-                    </li>
-                ))}
-              </ul>
+              <OrderList token={localStorage.getItem('token')} />
             </div>
         ) : (
             <div>Brak uprawnień.</div>

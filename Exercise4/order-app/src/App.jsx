@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import LoginPage from './pages/LoginForm';
 import RegisterPage from './pages/RegisterForm';
 import MainPage from './pages/MainPage';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
