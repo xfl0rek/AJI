@@ -4,7 +4,7 @@ import ProductList from '../components/ProductList';
 import Cart from '../components/Cart';
 import { createOrder, updateProduct } from '../api';
 import OrderList from "../components/OrderList.jsx";
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import ClientOrderList from "../components/ClientOrderList.jsx";
 
 const MainPage = ({ onLogout }) => {
@@ -15,6 +15,9 @@ const MainPage = ({ onLogout }) => {
   const [userRole, setUserRole] = useState(null);
   const [userData, setUserData] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
+  
+  // Użycie hooka useNavigate do nawigacji w obrębie strony
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -174,6 +177,7 @@ const MainPage = ({ onLogout }) => {
       ) : userRole === 'PRACOWNIK' ? (
         <div>
           <h2>Panel Pracownika</h2>
+          <button onClick={() => navigate('/initDB')}>Inicjalizuj bazę danych</button>
           <ProductList
             cart={cart}
             setCart={setCart}

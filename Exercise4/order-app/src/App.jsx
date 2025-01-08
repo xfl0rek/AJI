@@ -4,6 +4,7 @@ import WelcomePage from './pages/WelcomePage';
 import MainPage from './pages/MainPage';
 import RegisterPage from './pages/RegisterForm';
 import RegisterSuccess from './pages/RegisterSuccess';
+import InitDatabase from './pages/InitDatabase'; // Zaimportuj InitDatabase
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
@@ -52,6 +53,11 @@ const App = () => {
         <Route
           path="/registerSuccess"
           element={<RegisterSuccess />}
+        />
+
+        <Route
+          path="/initDB"
+          element={isLoggedIn ? <InitDatabase /> : <Navigate to="/" />}
         />
       </Routes>
     </div>
