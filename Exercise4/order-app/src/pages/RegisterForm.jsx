@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterForm = () => {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -15,14 +17,14 @@ const RegisterForm = () => {
       });
       if (response.ok) {
         setError(null);
-        console.log('Rejestracja udana!');
+        setLogin('');
+        setPassword('');
+        navigate('/registerSuccess');
       } else {
         const errorData = await response.json();
-        console.error('Błąd rejestracji:', errorData);
         setError(errorData.message || 'Błąd rejestracji');
       }
     } catch (error) {
-      console.error('Błąd rejestracji:', error);
       setError('Błąd rejestracji');
     }
   };
@@ -31,11 +33,19 @@ const RegisterForm = () => {
     <form onSubmit={handleSubmit}>
       <label>
         Nazwa użytkownika:
-        <input type="text" value={login} onChange={(event) => setLogin(event.target.value)} />
+        <input
+          type="text"
+          value={login}
+          onChange={(event) => setLogin(event.target.value)}
+        />
       </label>
       <label>
         Hasło:
-        <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
+        <input
+          type="password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+        />
       </label>
       <button type="submit">Zarejestruj się</button>
       {error && <p style={{ color: 'red' }}>{error}</p>}

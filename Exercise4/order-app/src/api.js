@@ -97,3 +97,38 @@ export  const getOrderStatuses = async (token) => {
     throw error;
   }
 };
+
+
+export const updateProduct = async (product) => {
+  try {
+    const response = await api.put(
+      `/products/${product._id}`, 
+      { ...product, category: product.category ? product.category._id : null },
+      {
+        headers: addAuthHeader(),
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Błąd podczas aktualizacji produktu ${product._id}:`, error);
+    throw error;
+  }
+};
+
+
+
+export const optimizeDescription = async (description) => {
+  try {
+    const response = await api.post(
+      '/optimize-description',
+      { description },
+      {
+        headers: addAuthHeader(),
+      }
+    );
+    return response.data.optimizedDescription;
+  } catch (error) {
+    console.error('Błąd przy optymalizacji opisu:', error);
+    throw error;
+  }
+};

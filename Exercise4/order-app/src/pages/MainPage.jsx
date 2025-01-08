@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import ProductList from '../components/ProductList';
 import Cart from '../components/Cart';
-import { createOrder, getOrders } from '../api';
+import { createOrder, updateProduct } from '../api';
 import OrderList from "../components/OrderList.jsx";
+import { Navigate } from 'react-router-dom';
 
 const MainPage = ({ onLogout }) => {
   const [cart, setCart] = useState([]);
@@ -12,6 +13,7 @@ const MainPage = ({ onLogout }) => {
   const [products, setProducts] = useState([]);
   const [userRole, setUserRole] = useState(null);
   const [userData, setUserData] = useState(null);
+  const [editingProduct, setEditingProduct] = useState(null);
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -69,35 +71,15 @@ const MainPage = ({ onLogout }) => {
     fetchProducts();
   }, [onLogout]);
 
-  useEffect(() => {
-    const fetchOrderHistory = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        onLogout();
-        return;
-      }
-
-      try {
-        const orders = await getOrders(token);
-        setOrderHistory(orders);
-      } catch (error) {
-        console.error('Błąd przy pobieraniu historii zamówień:', error);
-        alert('Nie udało się pobrać historii zamówień.');
-      }
-    };
-
-    fetchOrderHistory();
-  }, [onLogout, orderPlaced]);
-
   const handleAddToCart = (product) => {
     setCart((prevCart) => {
       const existingProductIndex = prevCart.findIndex(
-          (item) => item.product._id === product._id
+        (item) => item.product._id === product._id
       );
 
       if (existingProductIndex !== -1) {
         const updatedCart = [...prevCart];
-        updatedCart[existingProductIndex].quantity += 1;
+        updatedCart[existingProductIndex].quantity += 0.5;
         return updatedCart;
       } else {
         return [...prevCart, { product, quantity: 1 }];
@@ -132,38 +114,107 @@ const MainPage = ({ onLogout }) => {
     }
   };
 
+  const handleEditProduct = (product) => {
+    setEditingProduct(product);
+  };
+
+  const handleSaveProduct = async (product) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      onLogout();
+      return;
+    }
+
+    try {
+      await updateProduct(product._id, product, token);
+      setProducts((prevProducts) =>
+        prevProducts.map((p) => (p._id === product._id ? product : p))
+      );
+      setEditingProduct(null);
+    } catch (error) {
+      console.error('Błąd przy zapisywaniu produktu:', error);
+      alert('Nie udało się zapisać produktu.');
+    }
+  };
+
   if (userRole === null) {
     return <div>Ładowanie...</div>;
   }
 
-  return (
-      <div className="MainPage">
-        <header>
-          <h1>Sklep Internetowy</h1>
-          <button onClick={onLogout}>Wyloguj się</button>
-        </header>
+  if (!localStorage.getItem('token')) {
+    return <Navigate to="/" />;
+  }
 
-        {userRole === 'KLIENT' ? (
-            <>
-              <ProductList onAddToCart={handleAddToCart} cart={cart} setCart={setCart} />
-              {orderPlaced ? (
-                  <div>
-                    <h2>Twoje zamówienie zostało złożone!</h2>
-                    <button onClick={() => setOrderPlaced(false)}>Powróć do sklepu</button>
-                  </div>
-              ) : (
-                  <Cart cart={cart} setCart={setCart} onPlaceOrder={handlePlaceOrder} />
-              )}
-            </>
-        ) : userRole === 'PRACOWNIK' ? (
+  return (
+    <div className="MainPage">
+      <header>
+        <h1>Sklep Internetowy</h1>
+        <button onClick={onLogout}>Wyloguj się</button>
+      </header>
+
+      {userRole === 'KLIENT' ? (
+        <>
+          <ProductList
+            onAddToCart={handleAddToCart}
+            cart={cart}
+            setCart={setCart}
+            isEditable={false}
+          />
+          {orderPlaced ? (
             <div>
-              <h2>Panel Pracownika</h2>
-              <OrderList token={localStorage.getItem('token')} />
+              <h2>Twoje zamówienie zostało złożone!</h2>
+              <button onClick={() => setOrderPlaced(false)}>Powróć do sklepu</button>
             </div>
-        ) : (
-            <div>Brak uprawnień.</div>
-        )}
-      </div>
+          ) : (
+            <Cart cart={cart} setCart={setCart} onPlaceOrder={handlePlaceOrder} />
+          )}
+        </>
+      ) : userRole === 'PRACOWNIK' ? (
+        <div>
+          <h2>Panel Pracownika</h2>
+          <ProductList
+            cart={cart}
+            setCart={setCart}
+            isEditable={true}
+            onEditProduct={handleEditProduct}
+          />
+          {editingProduct && (
+            <div className="edit-product-form">
+              <h3>Edytuj Produkt</h3>
+              <input
+                type="text"
+                value={editingProduct.name}
+                onChange={(e) =>
+                  setEditingProduct({ ...editingProduct, name: e.target.value })
+                }
+                placeholder="Nazwa produktu"
+              />
+              <input
+                type="text"
+                value={editingProduct.description}
+                onChange={(e) =>
+                  setEditingProduct({ ...editingProduct, description: e.target.value })
+                }
+                placeholder="Opis produktu"
+              />
+              <input
+                type="number"
+                value={editingProduct.price}
+                onChange={(e) =>
+                  setEditingProduct({ ...editingProduct, price: parseFloat(e.target.value) })
+                }
+                placeholder="Cena produktu"
+              />
+              <button onClick={() => handleSaveProduct(editingProduct)}>Zapisz</button>
+              <button onClick={() => setEditingProduct(null)}>Anuluj</button>
+            </div>
+          )}
+          <OrderList token={localStorage.getItem('token')} />
+        </div>
+      ) : (
+        <div>Brak uprawnień.</div>
+      )}
+    </div>
   );
 };
 

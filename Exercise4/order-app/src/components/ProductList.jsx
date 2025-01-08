@@ -1,38 +1,50 @@
 import { useState, useEffect } from 'react';
-import { getProducts, getCategories } from '../api';
+import { getProducts, getCategories, updateProduct } from '../api';
 import '../App.css';
 
-const ProductList = ({ cart, setCart }) => {
+const ProductList = ({ cart, setCart, isEditable }) => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchName, setSearchName] = useState('');
   const [searchDescription, setSearchDescription] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [editProduct, setEditProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const productsData = await getProducts();
+      const categoriesData = await getCategories();
+      console.log('Dane produktów:', productsData);
+      console.log('Dane kategorii:', categoriesData);
+      setProducts(productsData);
+      setCategories(categoriesData);
+      setFilteredProducts(productsData);
+    } catch (error) {
+      console.error('Nie udało się pobrać produktów lub kategorii:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const productsData = await getProducts();
-        const categoriesData = await getCategories();
-        setProducts(productsData);
-        setCategories(categoriesData);
-        setFilteredProducts(productsData);
-      } catch (error) {
-        console.error('Nie udało się pobrać produktów lub kategorii:', error);
-      }
-    };
-
     fetchData();
   }, []);
 
   useEffect(() => {
-    filterProducts();
-  }, [searchName, searchDescription, selectedCategory, products]);
+    if (!loading) {
+      filterProducts();
+    }
+  }, [searchName, searchDescription, selectedCategory, products, loading]);
 
   const mapCategoryToName = (categoryId) => {
-    const categoryIdString = categoryId ? categoryId._id.toString() : '';
-    const category = categories.find((cat) => cat._id === categoryIdString);
+    if (!categoryId || !categoryId._id) {
+      return 'Nieznana kategoria';
+    }
+
+    const category = categories.find((cat) => cat._id.toString() === categoryId._id.toString());
     return category ? category.name : 'Nieznana kategoria';
   };
 
@@ -41,7 +53,7 @@ const ProductList = ({ cart, setCart }) => {
       const matchesName = product.name.toLowerCase().includes(searchName.toLowerCase());
       const matchesDescription = product.description.toLowerCase().includes(searchDescription.toLowerCase());
 
-      const categoryId = product.category && product.category._id ? product.category._id.toString() : product.category.toString();
+      const categoryId = product.category ? (product.category._id || product.category.toString()) : '';
 
       const matchesCategory = selectedCategory ? categoryId === selectedCategory : true;
 
@@ -53,17 +65,14 @@ const ProductList = ({ cart, setCart }) => {
 
   const handleSearchNameChange = (e) => {
     setSearchName(e.target.value);
-    filterProducts();
   };
 
   const handleSearchDescriptionChange = (e) => {
     setSearchDescription(e.target.value);
-    filterProducts();
   };
 
   const handleCategoryChange = (e) => {
     setSelectedCategory(e.target.value);
-    filterProducts();
   };
 
   const addToCart = (product) => {
@@ -79,6 +88,54 @@ const ProductList = ({ cart, setCart }) => {
       }
     });
   };
+
+  const startEditProduct = (product) => setEditProduct({ ...product });
+  const cancelEditProduct = () => setEditProduct(null);
+
+  const handleInputChange = (field, value) => {
+    if (field === 'category') {
+      setEditProduct((prev) => ({
+        ...prev,
+        [field]: value ? { _id: value } : null,
+      }));
+    } else {
+      setEditProduct((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    }
+  };
+
+  const saveProductChanges = async () => {
+    try {
+      console.log('Edycja produktu:', editProduct);
+      const updatedProduct = await updateProduct(editProduct);
+
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product._id === updatedProduct._id ? updatedProduct : product
+        )
+      );
+      setFilteredProducts((prevFilteredProducts) =>
+        prevFilteredProducts.map((product) =>
+          product._id === updatedProduct._id ? updatedProduct : product
+        )
+      );
+
+      alert('Produkt został zaktualizowany.');
+
+      await fetchData();
+
+      setEditProduct(null);
+    } catch (error) {
+      console.error('Nie udało się zaktualizować produktu:', error);
+      alert('Wystąpił problem z aktualizacją produktu.');
+    }
+  };
+
+  if (loading) {
+    return <div>Ładowanie danych...</div>;
+  }
 
   return (
     <div>
@@ -97,7 +154,10 @@ const ProductList = ({ cart, setCart }) => {
           onChange={handleSearchDescriptionChange}
         />
 
-        <select value={selectedCategory} onChange={handleCategoryChange}>
+        <select
+          value={selectedCategory}
+          onChange={handleCategoryChange}
+        >
           <option value="">Wybierz kategorię</option>
           {categories.map((category) => (
             <option key={category._id} value={category._id}>
@@ -126,7 +186,11 @@ const ProductList = ({ cart, setCart }) => {
                 <td>{product.price.toFixed(2)} zł</td>
                 <td>{mapCategoryToName(product.category)}</td>
                 <td>
-                  <button onClick={() => addToCart(product)}>Dodaj do koszyka</button>
+                  {isEditable ? (
+                    <button onClick={() => startEditProduct(product)}>Edytuj</button>
+                  ) : (
+                    <button onClick={() => addToCart(product)}>Dodaj do koszyka</button>
+                  )}
                 </td>
               </tr>
             ))
@@ -137,6 +201,51 @@ const ProductList = ({ cart, setCart }) => {
           )}
         </tbody>
       </table>
+
+      {editProduct && (
+        <div className="edit-product">
+          <h2>Edytuj produkt</h2>
+          <label>
+            Nazwa:
+            <input
+              type="text"
+              value={editProduct.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+            />
+          </label>
+          <label>
+            Opis:
+            <textarea
+              value={editProduct.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+            />
+          </label>
+          <label>
+            Cena:
+            <input
+              type="number"
+              value={editProduct.price}
+              onChange={(e) => handleInputChange('price', parseFloat(e.target.value))}
+            />
+          </label>
+          <label>
+            Kategoria:
+            <select
+              value={editProduct.category?._id || ''}
+              onChange={(e) => handleInputChange('category', e.target.value)}
+            >
+              <option value="">Wybierz kategorię</option>
+              {categories.map((category) => (
+                <option key={category._id} value={category._id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button onClick={saveProductChanges}>Zapisz</button>
+          <button onClick={cancelEditProduct}>Anuluj</button>
+        </div>
+      )}
     </div>
   );
 };
