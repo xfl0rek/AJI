@@ -98,6 +98,15 @@ const ProductList = ({ cart, setCart, isEditable }) => {
         ...prev,
         [field]: value ? { _id: value } : null,
       }));
+    } else if (field === 'price') {
+      if (value >= 0) {
+        setEditProduct((prev) => ({
+          ...prev,
+          [field]: parseFloat(value),
+        }));
+      } else {
+        alert('Cena musi być dodatnia!');
+      }
     } else {
       setEditProduct((prev) => ({
         ...prev,
@@ -105,6 +114,7 @@ const ProductList = ({ cart, setCart, isEditable }) => {
       }));
     }
   };
+  
 
   const saveProductChanges = async () => {
     try {
