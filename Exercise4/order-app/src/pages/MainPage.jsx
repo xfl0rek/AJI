@@ -5,6 +5,7 @@ import Cart from '../components/Cart';
 import { createOrder, updateProduct } from '../api';
 import OrderList from "../components/OrderList.jsx";
 import { Navigate } from 'react-router-dom';
+import ClientOrderList from "../components/ClientOrderList.jsx";
 
 const MainPage = ({ onLogout }) => {
   const [cart, setCart] = useState([]);
@@ -168,6 +169,7 @@ const MainPage = ({ onLogout }) => {
           ) : (
             <Cart cart={cart} setCart={setCart} onPlaceOrder={handlePlaceOrder} />
           )}
+          <ClientOrderList token={localStorage.getItem('token')} />
         </>
       ) : userRole === 'PRACOWNIK' ? (
         <div>
