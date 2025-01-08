@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import WelcomePage from './pages/WelcomePage';
 import MainPage from './pages/MainPage';
@@ -7,15 +7,24 @@ import RegisterSuccess from './pages/RegisterSuccess';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    const storedLoggedIn = localStorage.getItem('isLoggedIn');
+    return storedLoggedIn === 'true';
+  });
 
   const handleLogin = () => {
     setIsLoggedIn(true);
+    localStorage.setItem('isLoggedIn', 'true');
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
+    localStorage.removeItem('isLoggedIn');
   };
+
+  useEffect(() => {
+    console.log('Sprawdzanie zalogowania przy starcie:', isLoggedIn);
+  }, []);
 
   return (
     <div>

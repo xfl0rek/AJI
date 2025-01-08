@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getProducts, getCategories, updateProduct } from '../api';
+import { getProducts, getCategories, updateProduct, optimizeDescriptionApi } from '../api';
 import '../App.css';
 
 const ProductList = ({ cart, setCart, isEditable }) => {
@@ -114,7 +114,6 @@ const ProductList = ({ cart, setCart, isEditable }) => {
       }));
     }
   };
-  
 
   const saveProductChanges = async () => {
     try {
@@ -143,12 +142,31 @@ const ProductList = ({ cart, setCart, isEditable }) => {
     }
   };
 
+  const optimizeDescription = async () => {
+    if (!editProduct) return;
+  
+    try {
+      const optimizedDescription = await optimizeDescriptionApi(editProduct);
+      setEditProduct((prev) => ({
+        ...prev,
+        description: optimizedDescription,
+      }));
+  
+      alert('Opis został zoptymalizowany!');
+    } catch (error) {
+      console.error('Błąd przy optymalizacji opisu:', error);
+      alert('Nie udało się zoptymalizować opisu.');
+    }
+  };
+  
+
   if (loading) {
     return <div>Ładowanie danych...</div>;
   }
 
   return (
     <div>
+      {/* UI do filtrowania produktów */}
       <div className="filters">
         <input
           type="text"
@@ -230,6 +248,7 @@ const ProductList = ({ cart, setCart, isEditable }) => {
               onChange={(e) => handleInputChange('description', e.target.value)}
             />
           </label>
+          <button onClick={optimizeDescription}>Optymalizuj opis</button>
           <label>
             Cena:
             <input

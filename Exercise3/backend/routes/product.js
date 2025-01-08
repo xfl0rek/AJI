@@ -110,4 +110,32 @@ router.get('/:id/seo-description',authMiddleware, async (req, res) => {
     }
 })
 
+router.put('/optimize-description/:id', authMiddleware, async (req, res) => {
+    const { description } = req.body;
+    
+    try {
+      const chatCompletion = await groq.chat.completions.create({
+        messages: [
+          {
+            role: "user",
+            content: `Optimize the following product description to make it more engaging and SEO-friendly. Provide only the optimized description, without any introduction or explanation, make it short and remember not to add any ": 
+            Description: ${description}`
+          },
+        ],
+        model: "llama3-8b-8192"
+      });
+  
+      const optimizedDescription = chatCompletion?.choices[0]?.message?.content;
+  
+      if (!optimizedDescription) {
+        return res.status(500).json({ message: 'Nie udało się zoptymalizować opisu' });
+      }
+  
+      res.status(200).json({ optimizedDescription });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+  
+
 module.exports = router;
