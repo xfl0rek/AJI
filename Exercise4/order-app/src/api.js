@@ -58,17 +58,21 @@ export const getOrders = async (token) => {
   }
 };
 
-export const updateOrderStatus = async (orderId, status) => {
+export const updateOrderStatus = async (orderId, statusId) => {
   try {
-    const response = await api.patch(`/orders/${orderId}`, { status }, {
-      headers: addAuthHeader(),
-    });
+    const response = await api.patch(
+        `/orders/${orderId}`, statusId,
+        {
+          headers: addAuthHeader(),
+        }
+    );
     return response.data;
   } catch (error) {
-    console.error(`Błąd podczas aktualizacji zamówienia ${orderId}:`, error);
+    console.error(`Błąd podczas aktualizacji zamówienia o ID ${orderId}:`, error.message);
     throw error;
   }
 };
+
 
 export const createOrder = async (orderData, token) => {
   try {
@@ -84,20 +88,19 @@ export const createOrder = async (orderData, token) => {
   }
 };
 
-export  const getOrderStatuses = async (token) => {
+export const getOrderStatuses = async (token) => {
   try {
-    const response = await axios.get('/statuses', {
+    const response = await axios.get('http://localhost:5000/api/statuses/', {
       headers: {
-        Authorization: `Bearer ${token}`,
+        'Authorization': 'Bearer ' + token,
+        'Accept': 'application/json'
       }
     });
     return response.data;
-  } catch (error) {
-    console.error('Błąd podczas pobierania statusów zamówień', error.message);
-    throw error;
+  } catch (err) {
+    console.error(err);
   }
 };
-
 
 export const updateProduct = async (product) => {
   try {
@@ -114,8 +117,6 @@ export const updateProduct = async (product) => {
     throw error;
   }
 };
-
-
 
 export const optimizeDescription = async (description) => {
   try {

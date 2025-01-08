@@ -3,31 +3,42 @@ import { getOrders, getOrderStatuses, updateOrderStatus } from '../api';
 
 const OrderList = ({ token }) => {
     const [orders, setOrders] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [statuses, setStatuses] = useState([]);
 
     useEffect(() => {
         const fetchOrders = async () => {
             try {
                 const fetchedOrders = await getOrders(token);
+                const fetchedStatuses = await getOrderStatuses(token);
                 const filteredOrders = fetchedOrders.filter(order =>
                     ['UNCONFIRMED', 'CONFIRMED', 'CANCELLED'].includes(order.status.name)
                 );
-
                 setOrders(filteredOrders);
-                setLoading(false);
+                setStatuses(fetchedStatuses);
             } catch (err) {
                 console.error('Błąd przy pobieraniu zamówień:', err);
-                setError('Nie udało się załadować zamówień.');
-                setLoading(false);
             }
         };
 
         fetchOrders();
     }, [token]);
 
-    if (loading) return <div>Ładowanie zamówień...</div>;
-    if (error) return <div>{error}</div>;
+    const handleStatusChange = async (orderId, newStatusId) => {
+        try {
+            const body = {
+                status: newStatusId,
+            }
+            const updatedOrder = await updateOrderStatus(orderId, body);
+            setOrders((prevOrders) =>
+                prevOrders.map((order) =>
+                    order._id === orderId ? { ...order, status: updatedOrder.status } : order
+                )
+            );
+        } catch (err) {
+            console.error('Błąd przy zmianie statusu zamówienia:', err);
+            alert('Nie udało się zmienić statusu zamówienia.');
+        }
+    };
 
     return (
         <div className="container mt-5">
@@ -43,6 +54,7 @@ const OrderList = ({ token }) => {
                     <th>Telefon</th>
                     <th>Produkty</th>
                     <th>Opinie</th>
+                    <th>Akcja</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -76,6 +88,19 @@ const OrderList = ({ token }) => {
                                 ) : (
                                     'Brak opinii'
                                 )}
+                            </td>
+                            <td>
+                                <select
+                                    className="form-select"
+                                    onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                                    defaultValue={order.status._id}
+                                >
+                                    {statuses.map((status) => (
+                                        <option key={status._id} value={status._id}>
+                                            {status.name}
+                                        </option>
+                                    ))}
+                                </select>
                             </td>
                         </tr>
                     ))
