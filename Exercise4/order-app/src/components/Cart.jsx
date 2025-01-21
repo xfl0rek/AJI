@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { createOrder } from '../api';
 import '../App.css';
 
 const Cart = ({ cart, setCart, onPlaceOrder }) => {
@@ -7,6 +6,11 @@ const Cart = ({ cart, setCart, onPlaceOrder }) => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [isFormValid, setIsFormValid] = useState(true);
+  const [formErrors, setFormErrors] = useState({
+    username: '',
+    email: '',
+    phone: '',
+  });
 
   const removeFromCart = (productId) => {
     setCart((prevCart) => prevCart.filter((item) => item.product._id !== productId));
@@ -31,12 +35,32 @@ const Cart = ({ cart, setCart, onPlaceOrder }) => {
   };
 
   const validateForm = () => {
-    if (username && email && phone) {
-      setIsFormValid(true);
-      return true;
+    const errors = { username: '', email: '', phone: '' };
+    let isValid = true;
+
+    // Validate username: must be 2 to 50 letters
+    const usernameRegex = /^[A-Za-z]{2,50}$/;
+    if (!usernameRegex.test(username)) {
+      errors.username = 'Imię musi zawierać od 2 do 50 liter.';
+      isValid = false;
     }
-    setIsFormValid(false);
-    return false;
+
+    // Validate email: must be a valid email
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      errors.email = 'Podaj poprawny email (np. cos@cos.com).';
+      isValid = false;
+    }
+
+    // Validate phone: must be 9 digits only
+    const phoneRegex = /^[0-9]{9}$/;
+    if (!phoneRegex.test(phone)) {
+      errors.phone = 'Telefon musi składać się z 9 cyfr.';
+      isValid = false;
+    }
+
+    setFormErrors(errors);
+    return isValid;
   };
 
   const handleSubmitOrder = () => {
@@ -102,6 +126,7 @@ const Cart = ({ cart, setCart, onPlaceOrder }) => {
                 placeholder="Wpisz swoje imię"
                 className="form-input"
               />
+              {formErrors.username && <p style={{ color: 'red' }}>{formErrors.username}</p>}
             </div>
             <div className="form-group">
               <label>Email:</label>
@@ -112,6 +137,7 @@ const Cart = ({ cart, setCart, onPlaceOrder }) => {
                 placeholder="Wpisz swój email"
                 className="form-input"
               />
+              {formErrors.email && <p style={{ color: 'red' }}>{formErrors.email}</p>}
             </div>
             <div className="form-group">
               <label>Telefon:</label>
@@ -122,8 +148,8 @@ const Cart = ({ cart, setCart, onPlaceOrder }) => {
                 placeholder="Wpisz swój numer telefonu"
                 className="form-input"
               />
+              {formErrors.phone && <p style={{ color: 'red' }}>{formErrors.phone}</p>}
             </div>
-            {!isFormValid && <p style={{ color: 'red' }}>Wszystkie pola są wymagane!</p>}
           </form>
           <button onClick={handleSubmitOrder} disabled={cart.length === 0 || !isFormValid} className="submit-btn">
             Złóż zamówienie

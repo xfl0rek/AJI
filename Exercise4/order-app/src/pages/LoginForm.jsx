@@ -16,7 +16,7 @@ const LoginForm = ({ onLogin }) => {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('token', data.token);
-        localStorage.setItem('login', login)
+        localStorage.setItem('login', login);
         console.log('Token saved:', data.token);
         onLogin();
       } else {
@@ -28,17 +28,31 @@ const LoginForm = ({ onLogin }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Nazwa użytkownika:
-        <input type="text" value={login} onChange={(event) => setLogin(event.target.value)} />
-      </label>
-      <label>
-        Hasło:
-        <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
-      </label>
-      <button type="submit">Zaloguj się</button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <form onSubmit={handleSubmit} className="form-container">
+      <div className="form-field">
+        <label htmlFor="login">Nazwa użytkownika:</label>
+        <input
+          id="login"
+          type="text"
+          value={login}
+          onChange={(event) => setLogin(event.target.value)}
+          className="form-input"
+          required
+        />
+      </div>
+      <div className="form-field">
+        <label htmlFor="password">Hasło:</label>
+        <input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          className="form-input"
+          required
+        />
+      </div>
+      <button type="submit" className="submit-button">Zaloguj się</button>
+      {error && <p className="error-message">{error}</p>}
     </form>
   );
 };

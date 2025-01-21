@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const InitDatabase = () => {
   const [file, setFile] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -53,6 +55,10 @@ const InitDatabase = () => {
     }
   };
 
+  const handleGoBack = () => {
+    navigate('/main');
+  };
+
   return (
     <div>
       <h1>Inicjalizacja Bazy Danych</h1>
@@ -69,6 +75,9 @@ const InitDatabase = () => {
           {isLoading ? 'Trwa ładowanie...' : 'Zainicjalizuj bazę danych'}
         </button>
       </form>
+      <button onClick={handleGoBack} style={{ marginTop: '10px' }}>
+        Cofnij do głównej strony
+      </button>
     </div>
   );
 };

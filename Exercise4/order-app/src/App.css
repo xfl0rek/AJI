@@ -36,7 +36,7 @@
   padding: 10px;
   text-align: left;
   border: 1px solid #ccc;
-  word-wrap: break-word; /* Zmniejszenie łamania tekstu */
+  word-wrap: break-word;
 }
 
 .products-table th {
@@ -62,8 +62,6 @@
     max-width: none;
   }
 }
-
-/* Stylowanie formularza w Cart.css */
 
 .order-form {
   margin-top: 20px;

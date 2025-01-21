@@ -166,7 +166,6 @@ const ProductList = ({ cart, setCart, isEditable }) => {
 
   return (
     <div>
-      {/* UI do filtrowania produktów */}
       <div className="filters">
         <input
           type="text"
